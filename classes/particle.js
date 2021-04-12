@@ -111,7 +111,7 @@ export default class Particle {
 	}
 
 	separation(boids) {
-		let perception = 0.5 * perceptionSlider.value * this.radius;
+		let perception = 0.25 * perceptionSlider.value * this.radius;
 		// // view perception radius
 		if (checkSeparation.checked) {
 			ctx.fillStyle = 'rgba(0,0,0,0)';
