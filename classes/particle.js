@@ -6,6 +6,7 @@ import {
 	checkAlign,
 	checkCohesion,
 	checkSeparation,
+	perceptionSlider,
 } from '../main.js';
 import Vector from './vector.js';
 import { ellipse } from './shapes.js';
@@ -53,7 +54,7 @@ export default class Particle {
 	}
 
 	align(boids) {
-		let perception = 100 * this.radius;
+		let perception = perceptionSlider.value * this.radius;
 		// // view perception radius
 		if (checkAlign.checked) {
 			ctx.fillStyle = 'rgba(0,0,0,0)';
@@ -81,7 +82,7 @@ export default class Particle {
 	}
 
 	cohesion(boids) {
-		let perception = 50 * this.radius;
+		let perception = 0.5 * perceptionSlider.value * this.radius;
 		// // view perception radius
 		if (checkCohesion.checked) {
 			ctx.fillStyle = 'rgba(0,0,0,0)';
@@ -110,7 +111,7 @@ export default class Particle {
 	}
 
 	separation(boids) {
-		let perception = 60 * this.radius;
+		let perception = 0.5 * perceptionSlider.value * this.radius;
 		// // view perception radius
 		if (checkSeparation.checked) {
 			ctx.fillStyle = 'rgba(0,0,0,0)';

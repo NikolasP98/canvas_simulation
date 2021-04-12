@@ -8,7 +8,14 @@ export const ellipse = (x, y, rad) => {
 	ctx.fill();
 };
 
-export const slider = (min, max, value, step = 0, parent = undefined) => {
+export const slider = (
+	min,
+	max,
+	value,
+	step = 0,
+	id = undefined,
+	parent = undefined
+) => {
 	let elt = document.createElement('input');
 	elt.type = 'range';
 	elt.min = min;
@@ -28,7 +35,7 @@ export const slider = (min, max, value, step = 0, parent = undefined) => {
 	return parentElement.appendChild(elt);
 };
 
-export const checkbox = (value, parent = undefined) => {
+export const checkbox = (value, id = undefined, parent = undefined) => {
 	let elt = document.createElement('input');
 	elt.type = 'checkbox';
 

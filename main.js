@@ -11,7 +11,9 @@ export let alignSlider,
 	separationSlider,
 	checkAlign,
 	checkCohesion,
-	checkSeparation;
+	checkSeparation,
+	sizeSlider,
+	perceptionSlider;
 
 const mouse = {
 	x: null,
@@ -28,7 +30,7 @@ canvas.addEventListener('click', (e) => {
 			new Particle(
 				mouse.x + Math.random() * 5,
 				mouse.y + Math.random() * 5,
-				Math.random() * 2 + 1
+				Math.random() * sizeSlider.value + 1
 			)
 		);
 	}
@@ -45,12 +47,14 @@ const setup = () => {
 	canvas.width = window.innerWidth;
 	canvas.height = window.innerHeight;
 	particlesArray = [];
-	alignSlider = slider(0, 5, 1, 0.1, 'controls');
-	checkAlign = checkbox(false, 'controls');
-	cohesionSlider = slider(0, 5, 1, 0.1, 'controls');
-	checkCohesion = checkbox(false, 'controls');
-	separationSlider = slider(0, 5, 1, 0.1, 'controls');
-	checkSeparation = checkbox(false, 'controls');
+	alignSlider = slider(0, 5, 1, 0.1, 'aligner', 'slider1');
+	checkAlign = checkbox(false, undefined, 'slider1');
+	cohesionSlider = slider(0, 5, 1, 0.1, 'cohesions', 'slider2');
+	checkCohesion = checkbox(false, undefined, 'slider2');
+	separationSlider = slider(0, 5, 1, 0.1, 'separator', 'slider3');
+	checkSeparation = checkbox(false, undefined, 'slider3');
+	sizeSlider = slider(1, 9, 1, 0.1, 'size-rand', 'slider4');
+	perceptionSlider = slider(1, 100, 20, 1, 'perception', 'slider5');
 
 	window.requestAnimationFrame(animate);
 };
