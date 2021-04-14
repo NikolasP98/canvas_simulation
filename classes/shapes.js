@@ -35,10 +35,15 @@ export const slider = (
 	return parentElement.appendChild(elt);
 };
 
-export const checkbox = (value, id = undefined, parent = undefined) => {
+export const checkbox = (
+	value,
+	id = undefined,
+	parent = undefined,
+	className = undefined
+) => {
 	let elt = document.createElement('input');
 	elt.type = 'checkbox';
-
+	elt.classList.add(className);
 	if (typeof value === 'boolean') elt.checked = value;
 	elt.style.position = 'relative';
 	elt.style.display = 'block';

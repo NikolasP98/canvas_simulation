@@ -22,6 +22,7 @@ export default class Particle {
 		this.color = color;
 		this.maxForce = 0.2;
 		this.maxSpeed = 4;
+		this.largestRad = perceptionSlider.value * this.radius;
 	}
 
 	edges() {
@@ -50,11 +51,10 @@ export default class Particle {
 			.add(alignment)
 			.add(cohesion)
 			.add(separation);
-		// this.acceleration.mult(0);
 	}
 
 	align(boids) {
-		let perception = perceptionSlider.value * this.radius;
+		let perception = this.largestRad;
 		// // view perception radius
 		if (checkAlign.checked) {
 			ctx.fillStyle = 'rgba(0,0,0,0)';

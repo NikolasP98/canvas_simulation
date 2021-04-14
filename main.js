@@ -1,5 +1,6 @@
 import Particle from './classes/particle.js';
 import { slider, checkbox } from './classes/shapes.js';
+import { QuadTree, Rectangle, Point, Circle } from './classes/quadtree.js';
 
 const canvas = document.getElementById('canvas');
 export const ctx = canvas.getContext('2d');
@@ -48,11 +49,11 @@ const setup = () => {
 	canvas.height = window.innerHeight;
 	particlesArray = [];
 	alignSlider = slider(0, 5, 1, 0.1, 'aligner', 'slider1');
-	checkAlign = checkbox(false, undefined, 'slider1');
+	checkAlign = checkbox(false, undefined, 'slider1', 'checkbox');
 	cohesionSlider = slider(0, 5, 1, 0.1, 'cohesions', 'slider2');
-	checkCohesion = checkbox(false, undefined, 'slider2');
+	checkCohesion = checkbox(false, undefined, 'slider2', 'checkbox');
 	separationSlider = slider(0, 5, 1, 0.1, 'separator', 'slider3');
-	checkSeparation = checkbox(false, undefined, 'slider3');
+	checkSeparation = checkbox(false, undefined, 'slider3', 'checkbox');
 	sizeSlider = slider(1, 9, 1, 0.1, 'size-rand', 'slider4');
 	perceptionSlider = slider(1, 100, 20, 1, 'perception', 'slider5');
 
@@ -63,20 +64,28 @@ const setup = () => {
 const animate = () => {
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-	// particlesArray = particlesArray
-	// 	.filter((x) => x.position.y < canvas.height)
-	// 	.filter((x) => x.position.x < canvas.width);
+	let boundary = new Rectangle(
+		canvas.width / 2,
+		canvas.height / 2,
+		canvas.width / 2,
+		canvas.height / 2
+	);
 
-	for (const vec of particlesArray) {
+	let qtree = new QuadTree(boundary, 4);
+
+	for (let vec of particlesArray) {
+		let p = new Point(vec.position.x, vec.position.y, vec);
+		qtree.insert(p);
 		vec.edges();
-		vec.flock(particlesArray);
-	}
-	for (const vec of particlesArray) {
 		vec.update();
 	}
 
-	// console.log(vec.position.x);
-	// console.log(innerWidth);
+	for (let vec of particlesArray) {
+		let range = new Circle(vec.position.x, vec.position.y, vec.largestRad);
+		let points = qtree.query(range);
+		let others = points.map((x) => x.data);
+		vec.flock(others);
+	}
 	window.requestAnimationFrame(animate);
 };
 
