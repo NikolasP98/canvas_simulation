@@ -48,14 +48,14 @@ const setup = () => {
 	canvas.width = window.innerWidth;
 	canvas.height = window.innerHeight;
 	particlesArray = [];
-	alignSlider = slider(0, 5, 1, 0.1, 'aligner', 'slider1');
+	alignSlider = slider(0, 10, 2.5, 0.1, 'aligner', 'slider1');
 	checkAlign = checkbox(false, undefined, 'slider1', 'checkbox');
-	cohesionSlider = slider(0, 5, 1, 0.1, 'cohesions', 'slider2');
+	cohesionSlider = slider(0, 10, 2.5, 0.1, 'cohesions', 'slider2');
 	checkCohesion = checkbox(false, undefined, 'slider2', 'checkbox');
-	separationSlider = slider(0, 5, 1, 0.1, 'separator', 'slider3');
+	separationSlider = slider(0, 10, 2.5, 0.1, 'separator', 'slider3');
 	checkSeparation = checkbox(false, undefined, 'slider3', 'checkbox');
-	sizeSlider = slider(1, 9, 1, 0.1, 'size-rand', 'slider4');
-	perceptionSlider = slider(1, 100, 20, 1, 'perception', 'slider5');
+	sizeSlider = slider(1, 9, 5, 0.1, 'size-rand', 'slider4');
+	perceptionSlider = slider(100, 200, 150, 1, 'perception', 'slider5');
 
 	window.requestAnimationFrame(animate);
 };

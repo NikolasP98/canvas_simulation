@@ -22,7 +22,7 @@ export default class Particle {
 		this.color = color;
 		this.maxForce = 0.2;
 		this.maxSpeed = 4;
-		this.largestRad = perceptionSlider.value * this.radius;
+		this.largestRad = 0;
 	}
 
 	edges() {
@@ -54,7 +54,8 @@ export default class Particle {
 	}
 
 	align(boids) {
-		let perception = this.largestRad;
+		let perception = (perceptionSlider.value / this.radius) * 1.2;
+		this.largestRad = perception;
 		// // view perception radius
 		if (checkAlign.checked) {
 			ctx.fillStyle = 'rgba(0,0,0,0)';
@@ -82,7 +83,7 @@ export default class Particle {
 	}
 
 	cohesion(boids) {
-		let perception = 0.5 * perceptionSlider.value * this.radius;
+		let perception = 0.9 * this.largestRad;
 		// // view perception radius
 		if (checkCohesion.checked) {
 			ctx.fillStyle = 'rgba(0,0,0,0)';
@@ -111,7 +112,7 @@ export default class Particle {
 	}
 
 	separation(boids) {
-		let perception = 0.25 * perceptionSlider.value * this.radius;
+		let perception = 0.25 * this.largestRad;
 		// // view perception radius
 		if (checkSeparation.checked) {
 			ctx.fillStyle = 'rgba(0,0,0,0)';
