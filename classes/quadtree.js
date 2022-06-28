@@ -1,235 +1,270 @@
-import { ctx } from '../main.js';
+export default class QuadTree {
+	constructor(bounds, itemBounds = false, maxDepth = 4, maxCapacity = 4) {
+		let node;
 
-export class Point {
-	constructor(x, y, data = undefined) {
-		this._x = x;
-		this._y = y;
-		this._data = data;
-	}
-
-	get x() {
-		return this._x;
-	}
-	get y() {
-		return this._y;
-	}
-	get data() {
-		return this._data;
-	}
-
-	// Pythagorus: a^2 = b^2 + c^2
-	distance(point) {
-		const dx = point.x - this._x;
-		const dy = point.y - this._y;
-		return Math.sqrt(dx * dx + dy * dy);
-	}
-
-	show(color = 'white') {
-		ctx.fillStyle = color;
-		ctx.beginPath();
-		ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
-		ctx.fill();
-	}
-}
-
-export class Circle {
-	constructor(x, y, r) {
-		this._x = x;
-		this._y = y;
-		this._r = r;
-		this.rSq = r * r;
-	}
-	get x() {
-		return this._x;
-	}
-	get y() {
-		return this._y;
-	}
-	get r() {
-		return this._r;
-	}
-	contains(point) {
-		// check if the point is in the circle by checking if the euclidean distance of
-		// the point and the center of the circle if smaller or equal to the radius of
-		// the circle
-		let d = Math.pow(point.x - this._x, 2) + Math.pow(point.y - this._y, 2);
-		return d <= this.rSq;
-	}
-
-	intersects(range) {
-		let xDist = Math.abs(range.x - this._x);
-		let yDist = Math.abs(range.y - this._y);
-
-		// radius of the circle
-		let r = this._r;
-
-		let w = range.w / 2;
-		let h = range.h / 2;
-
-		let edges = Math.pow(xDist - w, 2) + Math.pow(yDist - h, 2);
-
-		// no intersection
-		if (xDist > r + w || yDist > r + h) return false;
-
-		// intersection within the circle
-		if (xDist <= w || yDist <= h) return true;
-
-		// intersection on the edge of the circle
-		return edges <= this.rSquared;
-	}
-
-	show(color = 'white') {
-		ctx.strokeStyle = color;
-		ctx.fillStyle = 'rgba(0,0,0,0)';
-
-		ctx.beginPath();
-		ctx.arc(this._x, this._y, this._r, 0, Math.PI * 2);
-		ctx.stroke();
-	}
-}
-
-export class Rectangle {
-	constructor(x, y, w, h) {
-		this._x = x;
-		this._y = y;
-		this._w = w;
-		this._h = h;
-	}
-	get x() {
-		return this._x;
-	}
-	get y() {
-		return this._y;
-	}
-	get w() {
-		return this._w;
-	}
-	get h() {
-		return this._h;
-	}
-
-	contains(point) {
-		return (
-			point.x >= this._x - this._w &&
-			point.x <= this._x + this._w &&
-			point.y >= this._y - this._h &&
-			point.y <= this._y + this._h
-		);
-	}
-
-	intersects(range) {
-		return !(
-			range.x - range.w > this._x + this._w ||
-			range.x + range._w < this._x - this._w ||
-			range.y - range.h > this._y + this._h ||
-			range.y + range._h < this._y - this._h
-		);
-	}
-	show(color = 'white') {
-		ctx.strokeStyle = color;
-
-		ctx.strokeRect(
-			this._x - this._w,
-			this._y - this._h,
-			this._w * 2,
-			this._h * 2
-		);
-	}
-}
-
-export class QuadTree {
-	constructor(boundary, capacity = 4) {
-		this.boundary = boundary;
-		this.capacity = capacity;
-		this.points = [];
-		this.divided = false;
-	}
-
-	get children() {
-		if (this.divided) {
-			return [this.ne, this.nw, this.se, this.sw];
+		if (!itemBounds) {
+			node = new Node(bounds, 0, maxDepth, maxCapacity);
 		} else {
-			return [];
+			node = new BoundedNode(bounds, 0, maxDepth, maxCapacity);
 		}
+
+		this.root = node;
 	}
 
-	set bounds(bound) {
-		this.boundary = bound;
-	}
-
-	subdivide() {
-		const x = this.boundary.x;
-		const y = this.boundary.y;
-		const w = this.boundary.w;
-		const h = this.boundary.h;
-
-		const tr = new Rectangle(x + w / 2, y - h / 2, w / 2, h / 2);
-		const tl = new Rectangle(x - w / 2, y - h / 2, w / 2, h / 2);
-		const br = new Rectangle(x + w / 2, y + h / 2, w / 2, h / 2);
-		const bl = new Rectangle(x - w / 2, y + h / 2, w / 2, h / 2);
-
-		this.ne = new QuadTree(tr, this.capacity);
-		this.nw = new QuadTree(tl, this.capacity);
-		this.se = new QuadTree(br, this.capacity);
-		this.sw = new QuadTree(bl, this.capacity);
-
-		this.divided = true;
-	}
-
-	insert(point) {
-		if (!this.boundary.contains(point)) {
-			return false;
-		}
-		if (this.points.length < this.capacity) {
-			this.points.push(point);
-			return true;
-		} else {
-			if (!this.divided) {
-				console.log('subdivided');
-				this.subdivide();
+	insert(item) {
+		if (item instanceof Array) {
+			for (let i = 0; i < item.length; i++) {
+				this.root.insert(item[i]);
 			}
-			return (
-				this.ne.insert(point) ||
-				this.nw.insert(point) ||
-				this.se.insert(point) ||
-				this.sw.insert(point)
+		} else {
+			this.root.insert(item);
+		}
+	}
+
+	query(bounds) {
+		return this.root.query(bounds);
+	}
+
+	clear() {
+		this.root.clear();
+	}
+}
+
+class Node {
+	constructor(bounds, depth = 0, maxDepth = 4, maxCapacity = 4) {
+		// bounds of the canvas
+		this.bounds = bounds;
+
+		// max capacity per container befor splitting
+		this.maxCapacity = maxCapacity;
+
+		// Up to how many levels to split the quadtree
+		this.maxDepth = maxDepth;
+
+		// Current depth of the node
+		this.depth = depth;
+
+		// Array of children bodies on canvas
+		this.children = [];
+		// Array of children of node objects caused by this.split()
+		this.nodes = [];
+
+		this.TL = 0;
+		this.TR = 1;
+		this.BL = 2;
+		this.BR = 3;
+
+		this.drawQuery = true;
+		this.queryBounds = {};
+	}
+
+	query(coordinates) {
+		// this.queryBounds = coordinates;
+
+		// Will return an array regardless of level of quadtree
+		let bodies = this.children;
+		const indexes = this.getIndexes(coordinates);
+
+		// If there are child nodes, query them as well (will get plenty duplicate bodies)
+		if (this.nodes.length) {
+			for (const index of indexes) {
+				bodies = bodies.concat(this.nodes[index].query(coordinates));
+			}
+		}
+
+		// filter out duplicates
+
+		bodies = bodies.filter((item, index) => {
+			return bodies.indexOf(item) >= index;
+		});
+
+		return bodies;
+	}
+
+	insert({ bounds, data = {} }) {
+		// ? If there are child nodes, skip to adding item to them
+
+		let indexes = this.getIndexes(bounds);
+
+		if (this.nodes.length) {
+			for (const index of indexes) {
+				this.nodes[index].insert({ bounds, data });
+			}
+			return;
+		}
+
+		// Once deepest node is reached (or if none exist), add item to current node
+		// Add item to root node
+		this.children.push({ bounds, data });
+
+		// Execute if after adding item, the exceeds maxChildren and is within depth limit
+		if (
+			this.depth < this.maxDepth &&
+			this.children.length > this.maxCapacity
+		) {
+			// Split node
+			this.split();
+
+			// redistribute children to nodes
+			for (let i = 0; i < this.children.length; i++) {
+				this.insert(this.children[i]);
+			}
+
+			// Clear children of current node after children nodes are populated so we don't have duplicates in tree (only child nodes contain bodies)
+			this.children = [];
+		}
+	}
+
+	getIndexes(item) {
+		const indexes = [];
+		const corners = this.getItemCorners(item);
+
+		for (let i = 0; i < corners.length; i++) {
+			indexes.push(this.getQuadrant(corners[i]));
+		}
+
+		return new Set(indexes);
+	}
+
+	getItemCorners(item) {
+		const x = item.x || 0;
+		const y = item.y || 0;
+		const width = item.width;
+		const height = item.height;
+
+		const corners = [{ x, y }];
+
+		if (width && height) {
+			corners.push(
+				{ x: x + width, y },
+				{ x, y: y + height },
+				{
+					x: x + width,
+					y: y + height,
+				}
 			);
 		}
+
+		return corners;
 	}
 
-	query(range, found) {
-		if (!found) {
-			found = [];
-		}
-		if (!range.intersects(this.boundary)) {
-			return found;
-		} else {
-			for (let p of this.points) {
-				if (range.contains(p)) {
-					found.push(p);
-				}
-			}
-			if (this.divided) {
-				this.ne.query(range, found);
-				this.nw.query(range, found);
-				this.se.query(range, found);
-				this.sw.query(range, found);
-			}
-		}
-		return found;
+	getQuadrant(item) {
+		const bounds = this.bounds;
+
+		const horizontalMidpoint = bounds.y + bounds.height / 2;
+		const verticalMidpoint = bounds.x + bounds.width / 2;
+
+		const TB = item.y > horizontalMidpoint ? 'B' : 'T';
+		const LR = item.x > verticalMidpoint ? 'R' : 'L';
+
+		let index = this[`${TB}${LR}`];
+
+		return index;
 	}
 
-	show() {
-		this.boundary.show();
+	split() {
+		const depth = this.depth + 1;
 
-		if (this.divided) {
-			this.ne.show();
-			this.nw.show();
-			this.se.show();
-			this.sw.show();
+		// Origin of current Node (original node has 0,0)
+		let originX = this.bounds.x;
+		let originY = this.bounds.y;
+
+		// Split current node halfway horizontally and vertically
+		let halfWidth = Math.floor(this.bounds.width / 2);
+		let halfHeight = Math.floor(this.bounds.height / 2);
+
+		// Place on canvas (origin + halfLengths)
+		const halfWidthCoord = originX + halfWidth;
+		const halfHeightCoord = originY + halfHeight;
+
+		// ? Why so many location variables?
+		// Rectangles take an x, y coordinate and a width and height
+		// Coordinate variables are for x and y values
+		// halfLengths are for width and height values (distance from each origin)
+
+		this.nodes[this.TL] = new Node(
+			{ x: originX, y: originY, width: halfWidth, height: halfHeight },
+			depth,
+			this.maxDepth,
+			this.maxCapacity
+		);
+		this.nodes[this.TR] = new Node(
+			{
+				x: halfWidthCoord,
+				y: originY,
+				width: halfWidth,
+				height: halfHeight,
+			},
+			depth,
+			this.maxDepth,
+			this.maxCapacity
+		);
+		this.nodes[this.BL] = new Node(
+			{
+				x: originX,
+				y: halfHeightCoord,
+				width: halfWidth,
+				height: halfHeight,
+			},
+			depth,
+			this.maxDepth,
+			this.maxCapacity
+		);
+		this.nodes[this.BR] = new Node(
+			{
+				x: halfWidthCoord,
+				y: halfHeightCoord,
+				width: halfWidth,
+				height: halfHeight,
+			},
+			depth,
+			this.maxDepth,
+			this.maxCapacity
+		);
+	}
+
+	draw(ctx) {
+		ctx.lineWidth = 2;
+		ctx.strokeStyle = '#ff00ff';
+
+		ctx.strokeRect(
+			this.bounds.x,
+			this.bounds.y,
+			this.bounds.width,
+			this.bounds.height
+		);
+
+		if (this.drawQuery) {
+			ctx.strokeStyle = '#00ff00';
+			ctx.strokeRect(
+				this.queryBounds.x,
+				this.queryBounds.y,
+				this.queryBounds.width,
+				this.queryBounds.height
+			);
 		}
-		for (let p of this.points) {
-			p.show();
+
+		if (this.nodes.length > 0) {
+			for (let i = 0; i < this.nodes.length; i++) {
+				this.nodes[i].draw(ctx);
+			}
 		}
+
+		ctx.stroke();
+	}
+
+	clear() {
+		this.children = [];
+		if (this.nodes.length > 0) {
+			for (let i = 0; i < this.nodes.length; i++) {
+				this.nodes[i].clear();
+			}
+		}
+	}
+}
+
+class BoundedNode extends Node {
+	constructor(bounds, depth, maxDepth = 4, maxCapacity = 4) {
+		super(bounds, depth, maxDepth, maxCapacity);
 	}
 }
