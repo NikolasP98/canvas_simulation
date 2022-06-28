@@ -1,9 +1,10 @@
 import Particle from './classes/particle.js';
 import { slider, checkbox } from './classes/shapes.js';
-import { QuadTree, Rectangle, Point, Circle } from './classes/quadtree.js';
+import QuadTree from './classes/quadtree.js';
 
 const canvas = document.getElementById('canvas');
 export const ctx = canvas.getContext('2d');
+let qtree;
 
 let particlesArray;
 
@@ -56,6 +57,10 @@ const setup = () => {
 	checkSeparation = checkbox(false, undefined, 'slider3', 'checkbox');
 	sizeSlider = slider(1, 9, 5, 0.1, 'size-rand', 'slider4');
 	perceptionSlider = slider(100, 200, 150, 1, 'perception', 'slider5');
+	qtree = new QuadTree(
+		{ x: 0, y: 0, width: canvas.width, height: canvas.height },
+		4
+	);
 
 	window.requestAnimationFrame(animate);
 };
@@ -63,25 +68,28 @@ const setup = () => {
 // animation loop runs indefinately
 const animate = () => {
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-	let boundary = new Rectangle(
-		canvas.width / 2,
-		canvas.height / 2,
-		canvas.width / 2,
-		canvas.height / 2
-	);
-
-	let qtree = new QuadTree(boundary, 4);
+	qtree.clear();
 
 	for (let vec of particlesArray) {
-		let p = new Point(vec.position.x, vec.position.y, vec);
-		qtree.insert(p);
+		let p = {
+			x: vec.position.x,
+			y: vec.position.y,
+			width: vec.radius * 2,
+			height: vec.radius * 2,
+		};
+		qtree.insert({ bounds: p, data: vec });
 		vec.edges();
 		vec.update();
 	}
 
 	for (let vec of particlesArray) {
-		let range = new Circle(vec.position.x, vec.position.y, vec.largestRad);
+		// let range = new Circle(vec.position.x, vec.position.y, vec.largestRad);
+		let range = {
+			x: vec.position.x,
+			y: vec.position.y,
+			width: 2 * vec.largestRad,
+			height: 2 * vec.largestRad,
+		};
 		let points = qtree.query(range);
 		let others = points.map((x) => x.data);
 		vec.flock(others);
