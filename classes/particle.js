@@ -17,7 +17,7 @@ export default class Particle {
 		this.velocity = new Vector(Math.random(), Math.random()).setMagnitude(
 			Math.random() * 2 + 2
 		);
-		this.acceleration = new Vector();
+		this.acceleration = new Vector(0, 0);
 		this.radius = rad;
 		this.color = color;
 		this.maxForce = 0.2;
@@ -145,8 +145,11 @@ export default class Particle {
 		ctx.fillStyle = this.color;
 		ellipse(this.position.x, this.position.y, this.radius);
 	}
-	update() {
+
+	update(boids) {
+		this.flock(boids);
 		this.position = this.position.add(this.velocity);
+		this.edges();
 		this.velocity = this.velocity
 			.add(this.acceleration)
 			.limit(this.maxSpeed);

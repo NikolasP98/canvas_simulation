@@ -1,14 +1,6 @@
 export default class QuadTree {
-	constructor(bounds, itemBounds = false, maxDepth = 4, maxCapacity = 4) {
-		let node;
-
-		if (!itemBounds) {
-			node = new Node(bounds, 0, maxDepth, maxCapacity);
-		} else {
-			node = new BoundedNode(bounds, 0, maxDepth, maxCapacity);
-		}
-
-		this.root = node;
+	constructor(bounds, maxDepth = 4, maxCapacity = 4) {
+		this.root = new Node(bounds, 0, maxDepth, maxCapacity);
 	}
 
 	insert(item) {
@@ -54,7 +46,7 @@ class Node {
 		this.BL = 2;
 		this.BR = 3;
 
-		this.drawQuery = true;
+		this.drawQuery = false;
 		this.queryBounds = {};
 	}
 
@@ -227,13 +219,6 @@ class Node {
 		ctx.lineWidth = 2;
 		ctx.strokeStyle = '#ff00ff';
 
-		ctx.strokeRect(
-			this.bounds.x,
-			this.bounds.y,
-			this.bounds.width,
-			this.bounds.height
-		);
-
 		if (this.drawQuery) {
 			ctx.strokeStyle = '#00ff00';
 			ctx.strokeRect(
@@ -244,27 +229,31 @@ class Node {
 			);
 		}
 
-		if (this.nodes.length > 0) {
+		if (this.nodes.length) {
 			for (let i = 0; i < this.nodes.length; i++) {
 				this.nodes[i].draw(ctx);
 			}
+			return;
 		}
+
+		ctx.strokeRect(
+			this.bounds.x,
+			this.bounds.y,
+			this.bounds.width,
+			this.bounds.height
+		);
 
 		ctx.stroke();
 	}
 
 	clear() {
 		this.children = [];
-		if (this.nodes.length > 0) {
+
+		if (this.nodes.length) {
 			for (let i = 0; i < this.nodes.length; i++) {
 				this.nodes[i].clear();
 			}
+			this.nodes = [];
 		}
-	}
-}
-
-class BoundedNode extends Node {
-	constructor(bounds, depth, maxDepth = 4, maxCapacity = 4) {
-		super(bounds, depth, maxDepth, maxCapacity);
 	}
 }
