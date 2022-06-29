@@ -1,68 +1,158 @@
 export default class Vector {
+	#x;
+	#y;
+	#z;
+
 	constructor(x = 0, y = 0, z = 0) {
-		this._x = x;
-		this._y = y;
-		this._z = z;
+		this.#x = x;
+		this.#y = y;
+		this.#z = z;
 	}
 
 	get x() {
-		return this._x;
+		return this.#x;
 	}
 	get y() {
-		return this._y;
+		return this.#y;
 	}
 	get z() {
-		return this._z;
+		return this.#z;
 	}
 
-	add = (otherVector) => {
+	set x(x) {
+		this.#x = x;
+	}
+	set y(y) {
+		this.#y = y;
+	}
+	set z(z) {
+		this.#z = z;
+	}
+
+	static add = (vector, otherVector) => {
 		return new Vector(
-			this._x + otherVector.x,
-			this._y + otherVector.y,
-			this._z + otherVector.z
+			vector.x + otherVector.x,
+			vector.y + otherVector.y,
+			vector.z + otherVector.z
 		);
 	};
 
-	sub(otherVector) {
+	add = (otherVector) => {
+		this.#x += otherVector.x;
+		this.#y += otherVector.y;
+		this.#z += otherVector.z;
+
+		return this;
+	};
+
+	static sub(vector, otherVector) {
 		return new Vector(
-			this._x - otherVector.x,
-			this._y - otherVector.y,
-			this._z - otherVector.z
+			vector.x - otherVector.x,
+			vector.y - otherVector.y,
+			vector.z - otherVector.z
 		);
 	}
+
+	sub(otherVector) {
+		this.#x -= otherVector.x;
+		this.#y -= otherVector.y;
+		this.#z -= otherVector.z;
+
+		return this;
+	}
+
+	static mult(vector, scalar) {
+		return new Vector(
+			vector.x * scalar,
+			vector.y * scalar,
+			vector.z * scalar
+		);
+	}
+
 	mult(scalar) {
-		return new Vector(this._x * scalar, this._y * scalar, this._z * scalar);
+		this.#x *= scalar;
+		this.#y *= scalar;
+		this.#z *= scalar;
+
+		return this;
+	}
+
+	static div(vector, scalar) {
+		return new Vector(
+			vector.x / scalar,
+			vector.y / scalar,
+			vector.z / scalar
+		);
 	}
 
 	div(scalar) {
-		return new Vector(this._x / scalar, this._y / scalar, this._z / scalar);
+		this.#x /= scalar;
+		this.#y /= scalar;
+		this.#z /= scalar;
+
+		return this;
+	}
+
+	static magnitude(vector) {
+		return Math.sqrt(
+			Math.pow(vector.x, 2) +
+				Math.pow(vector.y, 2) +
+				Math.pow(vector.z, 2)
+		);
 	}
 
 	magnitude() {
 		return Math.sqrt(
-			Math.pow(this._x, 2) + Math.pow(this._y, 2) + Math.pow(this._z, 2)
+			Math.pow(this.#x, 2) + Math.pow(this.#y, 2) + Math.pow(this.#z, 2)
 		);
 	}
 
-	normalized() {
-		return this.div(this.magnitude());
+	static normalize(vector) {
+		return vector.div(vector.magnitude());
+	}
+
+	normalize() {
+		this.div(this.magnitude());
+
+		return this;
+	}
+
+	static dist(vector, otherVector) {
+		let newVec = Vector.sub(vector, otherVector);
+		return Math.sqrt(Math.pow(newVec.x, 2) + Math.pow(newVec.y, 2));
 	}
 
 	dist(otherVector) {
-		let newVec = this.sub(otherVector);
+		let newVec = Vector.sub(this, otherVector);
 		return Math.sqrt(Math.pow(newVec.x, 2) + Math.pow(newVec.y, 2));
+	}
+
+	static limit(vector, max) {
+		let mag = Math.pow(vector.magnitude(), 2);
+		if (mag > Math.pow(max, 2)) {
+			return vector.normalize().mult(max);
+		}
+		return vector;
 	}
 
 	limit(max) {
 		let mag = Math.pow(this.magnitude(), 2);
-		// console.log(this);
 		if (mag > Math.pow(max, 2)) {
-			return this.normalized().mult(max);
+			this.normalize();
+			this.mult(max);
 		}
+
 		return this;
 	}
 
+	static setMagnitude(vector, x) {
+		return vector.normalize().mult(x);
+	}
+
 	setMagnitude(x) {
-		return this.normalized().mult(x);
+		this.normalize();
+		this.mult(x);
+
+		return this;
 	}
 }

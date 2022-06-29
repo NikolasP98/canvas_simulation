@@ -10,17 +10,103 @@
 	</head>
 	<body>
 		<div id="controls">
-			<h2>Controls</h2>
-			<label for="aligner">Alignment</label>
-			<div id="slider1"></div>
-			<label for="cohesions">Cohesion</label>
-			<div id="slider2"></div>
-			<label for="separator">Separation</label>
-			<div id="slider3"></div>
-			<label for="size-rand">Particle Size Rand.</label>
-			<div id="slider4"></div>
-			<label for="perception">Perception Radius</label>
-			<div id="slider5"></div>
+			<div class="header">
+				<h2>Controls</h2>
+			</div>
+
+			<!-- Alignment Controls -->
+			<div class="control-group">
+				<label for="alignment">Alignment</label>
+				<input
+					type="range"
+					id="alignment"
+					min="0"
+					max="10"
+					value="2.5"
+					step="0.1"
+				/>
+				<input
+					type="checkbox"
+					name="alignment-check"
+					id="alignment-check"
+					value="false"
+				/>
+			</div>
+
+			<!-- Cohesion Controls -->
+			<div class="control-group">
+				<label for="cohesion">Cohesion</label>
+				<input
+					type="range"
+					id="cohesion"
+					min="0"
+					max="10"
+					value="2.5"
+					step="0.1"
+				/>
+				<input
+					type="checkbox"
+					name="cohesion-check"
+					id="cohesion-check"
+					value="false"
+				/>
+			</div>
+
+			<!-- Separation Controls -->
+			<div class="control-group">
+				<label for="separation">Separation</label>
+				<input
+					type="range"
+					id="separation"
+					min="0"
+					max="10"
+					value="2.5"
+					step="0.1"
+				/>
+				<input
+					type="checkbox"
+					name="separation-check"
+					id="separation-check"
+					value="false"
+				/>
+			</div>
+
+			<!-- Size Randomize Controls -->
+			<div class="control-group">
+				<label for="size-randomness">Size Randomness</label>
+				<input
+					type="range"
+					id="size-randomness"
+					min="0"
+					max="10"
+					value="2.5"
+					step="0.1"
+				/>
+			</div>
+
+			<!-- Perception Radius Controls -->
+			<div class="control-group">
+				<label for="perception">Perception Radius</label>
+				<input
+					type="range"
+					id="perception"
+					min="0"
+					max="100"
+					value="50"
+					step="0.1"
+				/>
+			</div>
+
+			<!-- Show QuadTree -->
+			<div class="control-group">
+				<label for="quadtree">Show QuadTree</label>
+				<input
+					type="checkbox"
+					name="quadtree"
+					id="quadtree"
+					value="false"
+				/>
+			</div>
 		</div>
 		<canvas id="canvas"></canvas>
 		<script type="module" src="./main.js"></script>

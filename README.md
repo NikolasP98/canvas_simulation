@@ -23,3 +23,12 @@ When running the simulator, adjust the **intensity** of each parameter (Alignmen
 -   [The Nature of Code](https://natureofcode.com) by Daniel Shiffman
 -   [quadtree-js](https://github.com/timohausmann/quadtree-js) by timohausmann
 -   [Examples by Mesh](https://github.com/mikechambers/ExamplesByMesh) by mikechambers
+
+## To-Do
+
+-   Revamp vector.js and add static methods that return new Vector objects (previous methods will adjust current Vector object, allowing method chaining!)
+-   Implement Quadtree params in the controls menu
+-   Make controls menu draggable
+-   Remove duplicate controls
+-   Make boids triangular for sense of direction
+-   Adjust parameter values so that the sim runs more predictablity (smaller max radii, lower max speed, better proportional perception radii)

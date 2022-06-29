@@ -216,7 +216,7 @@ class Node {
 	}
 
 	draw(ctx) {
-		ctx.lineWidth = 2;
+		ctx.lineWidth = 1;
 		ctx.strokeStyle = '#ff00ff';
 
 		if (this.drawQuery) {

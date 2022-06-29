@@ -1,13 +1,4 @@
-import {
-	ctx,
-	alignSlider,
-	cohesionSlider,
-	separationSlider,
-	checkAlign,
-	checkCohesion,
-	checkSeparation,
-	perceptionSlider,
-} from '../main.js';
+import { ctx, getControls } from '../main.js';
 import Vector from './vector.js';
 import { ellipse } from './shapes.js';
 
@@ -17,92 +8,70 @@ export default class Particle {
 		this.velocity = new Vector(Math.random(), Math.random()).setMagnitude(
 			Math.random() * 2 + 2
 		);
-		this.acceleration = new Vector(0, 0);
+		// this.velocity.setMagnitude(Math.random() * 2 + 2);
+		this.acceleration = new Vector();
 		this.radius = rad;
 		this.color = color;
 		this.maxForce = 0.2;
-		this.maxSpeed = 4;
+		this.maxSpeed = 2;
 		this.largestRad = 0;
+		this.settings = {};
 	}
 
 	edges() {
 		if (this.position.x > canvas.width) {
 			// console.log('invaded right');
-			this.position._x = 0;
+			this.position.x = 0;
 		} else if (this.position.x < 0) {
 			// console.log('invaded left');
-			this.position._x = canvas.width;
+			this.position.x = canvas.width;
 		}
 		if (this.position.y > canvas.height) {
 			// console.log('invaded down');
-			this.position._y = 0;
+			this.position.y = 0;
 		} else if (this.position.y < 0) {
 			// console.log('invaded up');
-			this.position._y = canvas.height;
+			this.position.y = canvas.height;
 		}
 	}
 
 	flock(boids) {
-		let alignment = this.align(boids).mult(alignSlider.value);
-		let cohesion = this.cohesion(boids).mult(cohesionSlider.value);
-		let separation = this.separation(boids).mult(separationSlider.value);
+		let alignment = this.alignment(boids).mult(this.settings.alignment);
+		let cohesion = this.cohesion(boids).mult(this.settings.cohesion);
+		let separation = this.separation(boids).mult(this.settings.separation);
 
-		this.acceleration = this.acceleration
-			.add(alignment)
-			.add(cohesion)
-			.add(separation);
-	}
-
-	align(boids) {
-		let perception = (perceptionSlider.value / this.radius) * 1.2;
-		this.largestRad = perception;
-		// // view perception radius
-		if (checkAlign.checked) {
-			ctx.fillStyle = 'rgba(0,0,0,0)';
-			ctx.strokeStyle = 'yellow';
-			ellipse(this.position.x, this.position.y, perception);
-			ctx.strokeStyle = 'rgba(0,0,0,0)';
-		}
-		let avg = new Vector();
-		let amount = 0;
-		for (let boid of boids) {
-			let d = this.position.dist(boid.position);
-			if (d < perception && boid != this) {
-				avg = avg.add(boid.velocity);
-				amount++;
-			}
-		}
-		if (amount > 0) {
-			avg = avg
-				.div(amount)
-				.setMagnitude(this.maxSpeed)
-				.sub(this.velocity)
-				.limit(this.maxForce);
-		}
-		return avg;
+		this.acceleration.add(alignment).add(cohesion).add(separation);
 	}
 
 	cohesion(boids) {
-		let perception = 0.9 * this.largestRad;
-		// // view perception radius
-		if (checkCohesion.checked) {
+		const perception = (this.settings.perception * this.radius) / 2;
+		this.largestRad = perception;
+
+		// draw: view perception radius
+		if (this.settings.showCohesion) {
 			ctx.fillStyle = 'rgba(0,0,0,0)';
 			ctx.strokeStyle = 'green';
 			ellipse(this.position.x, this.position.y, perception);
 			ctx.strokeStyle = 'rgba(0,0,0,0)';
 		}
-		let avg = new Vector();
+		// end draw: view perception radius
+
+		const avg = new Vector();
 		let amount = 0;
+
+		if (!boids.length) {
+			return avg;
+		}
+
 		for (let boid of boids) {
 			let d = this.position.dist(boid.position);
 			if (d < perception && boid != this) {
-				avg = avg.add(boid.position);
+				avg.add(boid.position);
 				amount++;
 			}
 		}
 		if (amount > 0) {
-			avg = avg
-				.div(amount)
+			avg.div(amount)
 				.sub(this.position)
 				.setMagnitude(this.maxSpeed)
 				.sub(this.velocity)
@@ -111,29 +80,73 @@ export default class Particle {
 		return avg;
 	}
 
+	alignment(boids) {
+		const perception = this.radius + 0.3 * this.largestRad;
+
+		// draw: view perception radius
+		if (this.settings.showAlignment) {
+			ctx.fillStyle = 'rgba(0,0,0,0)';
+			ctx.strokeStyle = 'yellow';
+			ellipse(this.position.x, this.position.y, perception);
+			ctx.strokeStyle = 'rgba(0,0,0,0)';
+		}
+		// end draw: view perception radius
+
+		const avg = new Vector();
+		let amount = 0;
+
+		if (!boids.length) {
+			return avg;
+		}
+
+		for (let boid of boids) {
+			const d = this.position.dist(boid.position);
+
+			if (d < perception && boid != this) {
+				avg.add(boid.velocity);
+				amount++;
+			}
+		}
+
+		if (amount > 0) {
+			avg.div(amount)
+				.setMagnitude(this.maxSpeed)
+				.sub(this.velocity)
+				.limit(this.maxForce);
+		}
+		return avg;
+	}
+
 	separation(boids) {
-		let perception = 0.25 * this.largestRad;
-		// // view perception radius
-		if (checkSeparation.checked) {
+		const perception = this.radius + 0.1 * this.largestRad;
+
+		// draw: view perception radius
+		if (this.settings.showSeparation) {
 			ctx.fillStyle = 'rgba(0,0,0,0)';
 			ctx.strokeStyle = 'red';
 			ellipse(this.position.x, this.position.y, perception);
 			ctx.strokeStyle = 'rgba(0,0,0,0)';
 		}
-		let avg = new Vector();
+		// end draw: view perception radius
+
+		const avg = new Vector();
 		let amount = 0;
+
+		if (!boids.length) {
+			return avg;
+		}
+
 		for (let boid of boids) {
 			let d = this.position.dist(boid.position);
 			if (d < perception && boid != this) {
-				let diff = this.position.sub(boid.position);
-				diff = diff.div(Math.pow(d, 2));
-				avg = avg.add(diff);
+				let diff = Vector.sub(this.position, boid.position);
+				diff.div(Math.pow(d, 2));
+				avg.add(diff);
 				amount++;
 			}
 		}
 		if (amount > 0) {
-			avg = avg
-				.div(amount)
+			avg.div(amount)
 				.setMagnitude(this.maxSpeed)
 				.sub(this.velocity)
 				.limit(this.maxForce);
@@ -143,17 +156,18 @@ export default class Particle {
 
 	show() {
 		ctx.fillStyle = this.color;
+		ctx.strokeStyle = 'rgba(0,0,0)';
 		ellipse(this.position.x, this.position.y, this.radius);
 	}
 
 	update(boids) {
+		getControls(this.settings);
+
 		this.flock(boids);
-		this.position = this.position.add(this.velocity);
+		this.position.add(this.velocity);
 		this.edges();
-		this.velocity = this.velocity
-			.add(this.acceleration)
-			.limit(this.maxSpeed);
-		this.acceleration = this.acceleration.mult(0);
+		this.velocity.add(this.acceleration).limit(this.maxSpeed);
+		this.acceleration.mult(0);
 		this.show();
 	}
 }
