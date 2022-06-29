@@ -155,4 +155,20 @@ export default class Vector {
 
 		return this;
 	}
+
+	static getAngle(vector, deg) {
+		let angle = Math.atan2(vector.y, vector.x);
+		if (deg === 'deg') {
+			angle = angle * (180 / Math.PI);
+		}
+		return angle;
+	}
+
+	getAngle(deg = false) {
+		let angle = Math.atan2(this.#y, this.#x);
+		if (deg === 'deg') {
+			angle *= 180 / Math.PI;
+		}
+		return angle;
+	}
 }

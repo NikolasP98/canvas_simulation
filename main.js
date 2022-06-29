@@ -20,6 +20,8 @@ export const settings = {
 
 	sizeRandomness: 2.5,
 	perception: 2.5,
+
+	shape: 'triangle',
 };
 
 const mouse = {
@@ -47,6 +49,8 @@ export const getControls = (obj) => {
 		parseFloat(document.getElementById('size-randomness').value) || 2.5;
 	obj.perception =
 		parseFloat(document.getElementById('perception').value) || 2.5;
+
+	obj.shape = document.getElementById('boid-shape').value || 'triangle';
 };
 
 // setup function runs once before animation begins
@@ -119,7 +123,7 @@ canvas.addEventListener('click', (e) => {
 	mouse.x = e.x;
 	mouse.y = e.y;
 
-	for (let i = 0; i < 3; i++) {
+	for (let i = 0; i < 5; i++) {
 		particlesArray.push(
 			new Particle(
 				mouse.x + Math.random() * 50,

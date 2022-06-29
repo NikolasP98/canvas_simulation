@@ -8,13 +8,12 @@ export default class Particle {
 	constructor(x = 0, y = 0, rad = 1, color = 'white') {
 		this.position = new Vector(x, y);
 		this.velocity = new Vector(Math.random(), Math.random()).setMagnitude(
-			Math.random() * 2 + 2
+			Math.random() * 4 - 2
 		);
-		// this.velocity.setMagnitude(Math.random() * 2 + 2);
 		this.acceleration = new Vector();
 		this.radius = rad;
 		this.color = color;
-		this.maxForce = 0.1;
+		this.maxForce = 0.01;
 		this.maxSpeed = 1;
 		this.largestRad = 0;
 		this.settings = {};
@@ -156,7 +155,6 @@ export default class Particle {
 			let d = this.position.dist(boid.position);
 			if (d < perception && boid != this) {
 				let diff = Vector.sub(this.position, boid.position);
-				// diff.div(Math.pow(d, 2));
 				diff.normalize().div(d);
 				avg.add(diff);
 				amount++;
@@ -172,10 +170,36 @@ export default class Particle {
 		return avg;
 	}
 
+	drawShape(shape) {
+		if (shape === 'circle') {
+			ellipse(this.position.x, this.position.y, this.radius);
+		} else if (shape === 'triangle') {
+			const theta = this.velocity.getAngle();
+			ctx.beginPath();
+			ctx.save();
+			ctx.translate(this.position.x, this.position.y);
+			ctx.rotate(theta);
+			ctx.moveTo(-this.radius, -this.radius / 1.5);
+			ctx.lineTo(-this.radius, this.radius / 1.5);
+			ctx.lineTo(this.radius, 0);
+			ctx.closePath();
+			ctx.fill();
+			ctx.stroke();
+			ctx.restore();
+		} else if (shape === 'square') {
+			ctx.fillRect(
+				this.position.x,
+				this.position.y,
+				this.radius,
+				this.radius
+			);
+		}
+	}
+
 	show() {
 		ctx.fillStyle = this.color;
 		ctx.strokeStyle = 'rgba(0,0,0)';
-		ellipse(this.position.x, this.position.y, this.radius);
+		this.drawShape(this.settings.shape);
 	}
 
 	update(boids) {
