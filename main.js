@@ -6,7 +6,7 @@ export const ctx = canvas.getContext('2d');
 
 let qtree;
 let particlesArray = [];
-let drawQuadtree = document.getElementById('quadtree').checked;
+let drawQuadtree = document.getElementById('quadtree');
 
 export const settings = {
 	alignment: 2.5,
@@ -93,7 +93,9 @@ const animate = () => {
 		vec.update(others);
 	}
 
-	qtree.root.draw(ctx);
+	if (drawQuadtree.checked) {
+		qtree.root.draw(ctx);
+	}
 
 	window.requestAnimationFrame(animate);
 };

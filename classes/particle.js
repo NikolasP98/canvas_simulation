@@ -3,6 +3,8 @@ import Vector from './vector.js';
 import { ellipse } from './shapes.js';
 
 export default class Particle {
+	#MAX_STRENGTH = 3;
+
 	constructor(x = 0, y = 0, rad = 1, color = 'white') {
 		this.position = new Vector(x, y);
 		this.velocity = new Vector(Math.random(), Math.random()).setMagnitude(
@@ -12,8 +14,8 @@ export default class Particle {
 		this.acceleration = new Vector();
 		this.radius = rad;
 		this.color = color;
-		this.maxForce = 0.2;
-		this.maxSpeed = 2;
+		this.maxForce = 0.1;
+		this.maxSpeed = 1;
 		this.largestRad = 0;
 		this.settings = {};
 	}
@@ -36,11 +38,20 @@ export default class Particle {
 	}
 
 	flock(boids) {
+		let separation = this.separation(boids).mult(this.settings.separation);
 		let alignment = this.alignment(boids).mult(this.settings.alignment);
 		let cohesion = this.cohesion(boids).mult(this.settings.cohesion);
-		let separation = this.separation(boids).mult(this.settings.separation);
 
-		this.acceleration.add(alignment).add(cohesion).add(separation);
+		this.acceleration.add(separation).add(alignment).add(cohesion);
+	}
+
+	seek(target) {
+		const desired = Vector.sub(target, this.position);
+		desired.normalize().mult(this.maxSpeed);
+
+		const steer = Vector.sub(desired, this.velocity);
+		steer.limit(this.maxForce);
+		return steer;
 	}
 
 	cohesion(boids) {
@@ -49,8 +60,9 @@ export default class Particle {
 
 		// draw: view perception radius
 		if (this.settings.showCohesion) {
-			ctx.fillStyle = 'rgba(0,0,0,0)';
-			ctx.strokeStyle = 'green';
+			const str = this.settings.cohesion / (this.#MAX_STRENGTH * 4);
+			ctx.fillStyle = `rgba(0,255,0,${str})`;
+			ctx.strokeStyle = 'rgb(0,255,0)';
 			ellipse(this.position.x, this.position.y, perception);
 			ctx.strokeStyle = 'rgba(0,0,0,0)';
 		}
@@ -71,11 +83,12 @@ export default class Particle {
 			}
 		}
 		if (amount > 0) {
-			avg.div(amount)
-				.sub(this.position)
-				.setMagnitude(this.maxSpeed)
-				.sub(this.velocity)
-				.limit(this.maxForce);
+			avg.div(amount);
+			// .sub(this.position)
+			// .setMagnitude(this.maxSpeed)
+			// .sub(this.velocity)
+			// .limit(this.maxForce);
+			return this.seek(avg);
 		}
 		return avg;
 	}
@@ -85,8 +98,9 @@ export default class Particle {
 
 		// draw: view perception radius
 		if (this.settings.showAlignment) {
-			ctx.fillStyle = 'rgba(0,0,0,0)';
-			ctx.strokeStyle = 'yellow';
+			const str = this.settings.alignment / (this.#MAX_STRENGTH * 4);
+			ctx.fillStyle = `rgba(255,255,0,${str})`;
+			ctx.strokeStyle = 'rgb(255,255,0)';
 			ellipse(this.position.x, this.position.y, perception);
 			ctx.strokeStyle = 'rgba(0,0,0,0)';
 		}
@@ -110,7 +124,8 @@ export default class Particle {
 
 		if (amount > 0) {
 			avg.div(amount)
-				.setMagnitude(this.maxSpeed)
+				.normalize()
+				.mult(this.maxSpeed)
 				.sub(this.velocity)
 				.limit(this.maxForce);
 		}
@@ -122,8 +137,9 @@ export default class Particle {
 
 		// draw: view perception radius
 		if (this.settings.showSeparation) {
-			ctx.fillStyle = 'rgba(0,0,0,0)';
-			ctx.strokeStyle = 'red';
+			const str = this.settings.separation / (this.#MAX_STRENGTH * 4);
+			ctx.fillStyle = `rgba(255,0,0,${str})`;
+			ctx.strokeStyle = 'rgb(255,0,0)';
 			ellipse(this.position.x, this.position.y, perception);
 			ctx.strokeStyle = 'rgba(0,0,0,0)';
 		}
@@ -140,14 +156,16 @@ export default class Particle {
 			let d = this.position.dist(boid.position);
 			if (d < perception && boid != this) {
 				let diff = Vector.sub(this.position, boid.position);
-				diff.div(Math.pow(d, 2));
+				// diff.div(Math.pow(d, 2));
+				diff.normalize().div(d);
 				avg.add(diff);
 				amount++;
 			}
 		}
 		if (amount > 0) {
 			avg.div(amount)
-				.setMagnitude(this.maxSpeed)
+				.normalize()
+				.mult(this.maxSpeed)
 				.sub(this.velocity)
 				.limit(this.maxForce);
 		}
