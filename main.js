@@ -74,8 +74,8 @@ const animate = () => {
 		let p = {
 			x: vec.position.x,
 			y: vec.position.y,
-			width: vec.largestRad * 2,
-			height: vec.largestRad * 2,
+			width: vec.radius * 2,
+			height: vec.radius * 2,
 		};
 
 		qtree.insert({ bounds: p, data: vec });
