@@ -2,7 +2,7 @@
 
 For details on theory of how the mechanics of the simulator and the quadtree optimization, feel free to check out my [blog post](https://nikolaspro.notion.site/Flocking-Sim-Boids-b5fc42748e85477584709a751a0742b7) to see how they work.
 
-[Demo](https://flocking-simulation-omega.vercel.app)
+[Demo](https://nikolasp98.github.io/interactive_flocking_simulation_with_quadtree_implementation/)
 
 ## Installation
 
