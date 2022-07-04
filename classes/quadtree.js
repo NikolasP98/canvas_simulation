@@ -1,3 +1,13 @@
+import { gui } from '../main.js';
+
+const settings = {
+	showQuadtree: false,
+	quadTreeColor: '#00ff00',
+};
+
+// const quadTreeFolder = gui.addFolder('QuadTree');
+// quadTreeFolder.add(settings, 'showQuadtree').name('Show Quadtree');
+
 export default class QuadTree {
 	constructor(bounds, maxDepth = 4, maxCapacity = 4) {
 		this.root = new Node(bounds, 0, maxDepth, maxCapacity);
