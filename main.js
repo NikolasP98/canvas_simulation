@@ -5,13 +5,8 @@ import QuadTree from './classes/quadtree.js';
 
 const canvas = document.getElementById('canvas');
 export const ctx = canvas.getContext('2d');
+
 export const gui = new GUI();
-
-const settings = {
-	showQuadtree: false,
-};
-
-gui.add(settings, 'showQuadtree').name('Show Quadtree');
 
 let qtree;
 let particlesArray = [];
@@ -34,7 +29,8 @@ const setup = () => {
 		width: canvas.width,
 		height: canvas.height,
 	});
-
+	QuadTree.debugger(gui);
+	Particle.debugger(gui);
 	window.requestAnimationFrame(animate);
 };
 
@@ -66,9 +62,7 @@ const animate = () => {
 		vec.update(others);
 	}
 
-	if (settings.showQuadtree) {
-		qtree.root.draw(ctx);
-	}
+	qtree.draw(ctx);
 
 	window.requestAnimationFrame(animate);
 };
@@ -96,8 +90,7 @@ canvas.addEventListener('click', (e) => {
 		particlesArray.push(
 			new Particle(
 				mouse.x + Math.random() * 50,
-				mouse.y + Math.random() * 50,
-				Math.random() * 4 * 5 + 5
+				mouse.y + Math.random() * 50
 			)
 		);
 	}

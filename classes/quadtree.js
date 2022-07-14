@@ -1,16 +1,22 @@
-import { gui } from '../main.js';
-
 const settings = {
 	showQuadtree: false,
-	quadTreeColor: '#00ff00',
 };
 
-// const quadTreeFolder = gui.addFolder('QuadTree');
-// quadTreeFolder.add(settings, 'showQuadtree').name('Show Quadtree');
-
 export default class QuadTree {
+	static debug = false;
+
 	constructor(bounds, maxDepth = 4, maxCapacity = 4) {
 		this.root = new Node(bounds, 0, maxDepth, maxCapacity);
+	}
+
+	static debugger(gui) {
+		if (!this.debug) {
+			this.debug = true;
+			const quadTreeSettings = gui.addFolder('QuadTree');
+			quadTreeSettings
+				.add(settings, 'showQuadtree')
+				.name('Show Quadtree');
+		}
 	}
 
 	insert(item) {
@@ -29,6 +35,12 @@ export default class QuadTree {
 
 	clear() {
 		this.root.clear();
+	}
+
+	draw(ctx) {
+		if (settings.showQuadtree) {
+			this.root.draw(ctx);
+		}
 	}
 }
 

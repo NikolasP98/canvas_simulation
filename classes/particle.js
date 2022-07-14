@@ -1,7 +1,8 @@
-import { ctx, gui } from '../main.js';
-import Vector from './vector.js';
+import { ctx } from '../main.js';
 import { cone, ellipse } from './shapes.js';
+import Vector from './vector.js';
 
+// debug settings
 const settings = {
 	alignment: 1,
 	showAlignment: false,
@@ -18,41 +19,56 @@ const settings = {
 	shape: 'triangle',
 };
 
-const boidFolder = gui.addFolder('Boid');
-
-boidFolder.add(settings, 'cohesion', 0.1, 3, 0.1).name('Cohesion');
-boidFolder.add(settings, 'showCohesion').name('Show Cohesion');
-boidFolder.add(settings, 'alignment', 0.1, 3, 0.1).name('Alignment');
-boidFolder.add(settings, 'showAlignment').name('Show Alignment');
-boidFolder.add(settings, 'separation', 0.1, 3, 0.1).name('Separation');
-boidFolder.add(settings, 'showSeparation').name('Show Separation');
-boidFolder.add(settings, 'perception', 0.1, 100, 0.1).name('Perception Radius');
-boidFolder
-	.add(settings, 'shape', {
-		Triangle: 'triangle',
-		Circle: 'circle',
-		Square: 'square',
-	})
-	.name('Boid Shape');
-
-boidFolder.add(settings, 'sizeRandomness', 0, 10, 0.1).name('Size Randomness');
-
 export default class Particle {
 	#MAX_STRENGTH = 3;
+	static debug = false;
 
-	constructor(x = 0, y = 0, rad = 1, color = 'white') {
+	constructor(x = 0, y = 0, color = 'white') {
 		this.position = new Vector(x, y);
 		this.velocity = new Vector(Math.random(), Math.random()).setMagnitude(
 			Math.random() * 4 - 2
 		);
 		this.acceleration = new Vector();
 		this.theta = this.velocity.getAngle();
-		this.radius = rad;
+		this.radius = Math.random() * settings.sizeRandomness * 5 + 5;
 		this.color = color;
 		this.maxForce = 0.01;
 		this.maxSpeed = 1;
 		this.largestRad = 0;
 		this.settings = settings;
+	}
+
+	static debugger(gui) {
+		// Debugging
+		if (!this.debug) {
+			this.debug = true;
+			const boidFolder = gui.addFolder('Boid');
+
+			boidFolder.add(settings, 'cohesion', 0.1, 3, 0.1).name('Cohesion');
+			boidFolder.add(settings, 'showCohesion').name('Show Cohesion');
+			boidFolder
+				.add(settings, 'alignment', 0.1, 3, 0.1)
+				.name('Alignment');
+			boidFolder.add(settings, 'showAlignment').name('Show Alignment');
+			boidFolder
+				.add(settings, 'separation', 0.1, 3, 0.1)
+				.name('Separation');
+			boidFolder.add(settings, 'showSeparation').name('Show Separation');
+			boidFolder
+				.add(settings, 'perception', 0.1, 100, 0.1)
+				.name('Perception Radius');
+			boidFolder
+				.add(settings, 'shape', {
+					Triangle: 'triangle',
+					Circle: 'circle',
+					Square: 'square',
+				})
+				.name('Boid Shape');
+
+			boidFolder
+				.add(settings, 'sizeRandomness', 0, 10, 0.1)
+				.name('Size Randomness');
+		}
 	}
 
 	edges() {
