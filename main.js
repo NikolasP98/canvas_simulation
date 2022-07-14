@@ -6,9 +6,7 @@ import QuadTree from './classes/quadtree.js';
 const canvas = document.getElementById('canvas');
 export const ctx = canvas.getContext('2d');
 
-export const gui = new GUI();
-
-let qtree;
+let qtree, gui;
 let particlesArray = [];
 
 const mouse = {
@@ -73,6 +71,7 @@ const animate = () => {
 
 // run setup function
 window.onload = () => {
+	gui = new GUI();
 	setup();
 };
 
