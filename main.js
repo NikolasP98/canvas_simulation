@@ -27,6 +27,7 @@ const setup = () => {
 		width: canvas.width,
 		height: canvas.height,
 	});
+
 	QuadTree.debugger(gui);
 	Particle.debugger(gui);
 	window.requestAnimationFrame(animate);
@@ -72,25 +73,26 @@ const animate = () => {
 // run setup function
 window.onload = () => {
 	gui = new GUI();
+
+	// add particles to clicked coordinate
+	canvas.addEventListener('click', (e) => {
+		mouse.x = e.x;
+		mouse.y = e.y;
+
+		for (let i = 0; i < 5; i++) {
+			particlesArray.push(
+				new Particle(
+					mouse.x + Math.random() * 50,
+					mouse.y + Math.random() * 50
+				)
+			);
+		}
+	});
+
 	setup();
 };
 
 // change canvas size as browser window resizes
 window.addEventListener('resize', () => {
 	setup();
-});
-
-// add particles to clicked coordinate
-canvas.addEventListener('click', (e) => {
-	mouse.x = e.x;
-	mouse.y = e.y;
-
-	for (let i = 0; i < 5; i++) {
-		particlesArray.push(
-			new Particle(
-				mouse.x + Math.random() * 50,
-				mouse.y + Math.random() * 50
-			)
-		);
-	}
 });
