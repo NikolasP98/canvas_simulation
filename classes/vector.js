@@ -29,6 +29,14 @@ export default class Vector {
 		this.#z = z;
 	}
 
+	set(x, y, z = 0) {
+		this.#x = x;
+		this.#y = y;
+		this.#z = z;
+
+		return this;
+	}
+
 	static add = (vector, otherVector) => {
 		return new Vector(
 			vector.x + otherVector.x,

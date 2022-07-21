@@ -61,6 +61,8 @@ const animate = () => {
 		vec.update(others);
 	}
 
+	Particle.drawWalls();
+
 	qtree.draw(ctx);
 
 	window.requestAnimationFrame(animate);

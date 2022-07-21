@@ -17,7 +17,11 @@ const settings = {
 	perception: 25,
 
 	shape: 'ghost',
+
 	closedMap: false,
+	mapBoundary: 100,
+	mapRepel: 1,
+	debugMapLimits: false,
 };
 
 export default class Particle {
@@ -51,7 +55,6 @@ export default class Particle {
 	}
 
 	static debugger(gui) {
-		// Debugging
 		if (!this.debug) {
 			this.debug = true;
 			const boidFolder = gui.addFolder('Boid');
@@ -67,7 +70,7 @@ export default class Particle {
 				.name('Separation');
 			boidFolder.add(settings, 'showSeparation').name('Show Separation');
 			boidFolder
-				.add(settings, 'perception', 0.1, 100, 0.1)
+				.add(settings, 'perception', 0.1, 50, 0.1)
 				.name('Perception Radius');
 			boidFolder
 				.add(settings, 'shape', {
@@ -77,13 +80,44 @@ export default class Particle {
 					Square: 'square',
 				})
 				.name('Boid Shape');
-
 			boidFolder
 				.add(settings, 'sizeRandomness', 0, 10, 0.1)
 				.name('Size Randomness');
 
-			// TODO: toggle teleport or "bounce" off edges
-			boidFolder.add(settings, 'closedMap').name('Repel from Walls');
+			const mapFolder = gui.addFolder('Map');
+
+			mapFolder
+				.add(settings, 'closedMap')
+				.name('Repel from Walls')
+				.onChange(() => {
+					showWalls.enable(showWalls._disabled);
+				});
+			mapFolder
+				.add(settings, 'mapBoundary', 10, 100, 1)
+				.name('Wall repel distance');
+			mapFolder
+				.add(settings, 'mapRepel', 0.1, 3, 0.1)
+				.name('Wall repel intensity');
+			const showWalls = mapFolder
+				.add(settings, 'debugMapLimits')
+				.name('Show Walls')
+				.disable();
+		}
+	}
+
+	static drawWalls() {
+		if (settings.debugMapLimits && settings.closedMap) {
+			ctx.strokeStyle = '#fff';
+			ctx.beginPath();
+
+			ctx.rect(
+				settings.mapBoundary,
+				settings.mapBoundary,
+				ctx.canvas.width - settings.mapBoundary * 2,
+				ctx.canvas.height - settings.mapBoundary * 2
+			);
+			ctx.closePath();
+			ctx.stroke();
 		}
 	}
 
@@ -102,29 +136,33 @@ export default class Particle {
 	}
 
 	edges() {
-		// TODO: toggle teleport or "bounce" off edges
 		if (this.position.x > canvas.width) {
-			// console.log('invaded right');
 			this.position.x = 0;
 		} else if (this.position.x < 0) {
-			// console.log('invaded left');
 			this.position.x = canvas.width;
 		}
+
 		if (this.position.y > canvas.height) {
-			// console.log('invaded down');
 			this.position.y = 0;
 		} else if (this.position.y < 0) {
-			// console.log('invaded up');
 			this.position.y = canvas.height;
 		}
 	}
 
 	flock(boids) {
+		let boundaries = new Vector();
 		const separation = this.separation(boids).mult(settings.separation);
 		const alignment = this.alignment(boids).mult(settings.alignment);
 		const cohesion = this.cohesion(boids).mult(settings.cohesion);
+		if (settings.closedMap) {
+			boundaries = this.boundaries().mult(settings.mapRepel);
+		}
 
-		this.acceleration.add(separation).add(alignment).add(cohesion);
+		this.acceleration
+			.add(separation)
+			.add(alignment)
+			.add(cohesion)
+			.add(boundaries);
 	}
 
 	seek(target) {
@@ -134,6 +172,29 @@ export default class Particle {
 		const steer = Vector.sub(desired, this.velocity);
 		steer.limit(this.maxForce);
 		return steer;
+	}
+
+	boundaries() {
+		const d = settings.mapBoundary;
+		let desired = null;
+
+		if (this.position.x < d) {
+			desired = new Vector(this.maxSpeed, this.velocity.y);
+		} else if (this.position.x > ctx.canvas.width - d) {
+			desired = new Vector(-this.maxSpeed, this.velocity.y);
+		}
+
+		if (this.position.y < d) {
+			desired = new Vector(this.velocity.x, this.maxSpeed);
+		} else if (this.position.y > ctx.canvas.height - d) {
+			desired = new Vector(this.velocity.x, -this.maxSpeed);
+		}
+
+		if (desired != null) {
+			return desired;
+		}
+
+		return new Vector();
 	}
 
 	cohesion(boids) {
@@ -187,9 +248,7 @@ export default class Particle {
 		const avg = new Vector();
 		let amount = 0;
 
-		if (!boids.length) {
-			return avg;
-		}
+		if (!boids.length) avg;
 
 		for (let boid of boids) {
 			const d = this.position.dist(boid.position);
@@ -272,8 +331,6 @@ export default class Particle {
 				this.radius
 			);
 		} else if (shape === 'ghost') {
-			// TODO: ghost is off-center
-
 			if (this.currentFrame % 60 == 0) {
 				if (this.spriteX < 2) this.spriteX++;
 				else this.spriteX = 0;
@@ -310,7 +367,6 @@ export default class Particle {
 	show() {
 		ctx.fillStyle = this.color;
 		ctx.strokeStyle = 'rgba(0,0,0)';
-		// this.drawShape(settings.shape);
 		this.drawShape(settings.shape);
 	}
 
@@ -319,7 +375,9 @@ export default class Particle {
 
 		this.flock(boids);
 		this.position.add(this.velocity);
-		this.edges();
+
+		if (!settings.closedMap) this.edges();
+
 		this.velocity.add(this.acceleration).limit(this.maxSpeed);
 		this.acceleration.mult(0);
 		this.show();
