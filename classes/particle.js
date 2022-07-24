@@ -133,7 +133,7 @@ export default class Particle {
 						Particle.sprite.height;
 				};
 
-				Particle.sprite.src = './assets/ghost.png';
+				Particle.sprite.src = '../assets/ghost.png';
 			}
 		} catch (error) {
 			console.error(error);
