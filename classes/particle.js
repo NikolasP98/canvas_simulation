@@ -122,16 +122,21 @@ export default class Particle {
 	}
 
 	loadSprite() {
-		if (!Particle.sprite) {
-			Particle.sprite = new Image();
+		try {
+			if (!Particle.sprite) {
+				Particle.sprite = new Image();
 
-			Particle.sprite.onload = () => {
-				Particle.spriteSettings.frameWidth =
-					Particle.sprite.width / Particle.spriteSettings.columns;
-				Particle.spriteSettings.frameHeight = Particle.sprite.height;
-			};
+				Particle.sprite.onload = () => {
+					Particle.spriteSettings.frameWidth =
+						Particle.sprite.width / Particle.spriteSettings.columns;
+					Particle.spriteSettings.frameHeight =
+						Particle.sprite.height;
+				};
 
-			Particle.sprite.src = './assets/ghost.png';
+				Particle.sprite.src = './assets/ghost.png';
+			}
+		} catch (error) {
+			console.error(error);
 		}
 	}
 
