@@ -16,7 +16,7 @@ const settings = {
 	sizeRandomness: 2.5,
 	perception: 25,
 
-	shape: 'ghost',
+	shape: 'triangle',
 
 	closedMap: false,
 	mapBoundary: 100,
@@ -51,7 +51,8 @@ export default class Particle {
 		this.currentFrame = 0;
 		this.spriteX = 0;
 
-		this.loadSprite();
+		// TODO: Correctly implement ghost image
+		// this.loadSprite();
 	}
 
 	static debugger(gui) {
@@ -74,7 +75,8 @@ export default class Particle {
 				.name('Perception Radius');
 			boidFolder
 				.add(settings, 'shape', {
-					Ghost: 'ghost',
+					// TODO: Correctly implement ghost image
+					// Ghost: 'ghost',
 					Triangle: 'triangle',
 					Circle: 'circle',
 					Square: 'square',
@@ -133,7 +135,7 @@ export default class Particle {
 						Particle.sprite.height;
 				};
 
-				Particle.sprite.src = './classes/assets/ghost.png';
+				Particle.sprite.src = './assets/ghost.png';
 			}
 		} catch (error) {
 			console.error(error);
